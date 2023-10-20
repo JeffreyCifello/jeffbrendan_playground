@@ -21,3 +21,9 @@ git commit -m "This is a test commit by jeff."
 git push origin new_branch
 ```
 
+Edit: this didn't totally work. Before being able to commit, I had to create a personal access token. Information is here: https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens.  
+Navigate to the [creation](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-fine-grained-personal-access-token) section.
+
+I followed the instructions and created a fine-grained key for 6 months use. I checked the top 4 or so Repository Permission because a lot of them seemed like features I wouldn't use. I gave myself the ability to block other accounts. 
+I copied and saved the key **OUTSIDE** of the repository. 
+
