@@ -32,3 +32,5 @@ Additionally, before doing the commit and push, I explicitly set my username wit
 ```
 git config --global user.name "JeffreyCifello"
 ```
+
+Edit 2: When doing the push to origin, I used JeffreyCifello as my user name and my recently generated key as my password. 
