@@ -16,4 +16,5 @@ Any web app at all. I don't know web development and it seems fun.
 Baseball game prediction model.
 	-> I've looked into this a bit. Wrangling previous years data is non-trivial and the way it was saved was surprising. Stats are summarized by specified time windows. I'm not sure what existing models look like despite looking into it a tiny bit. People seem to charge for data that's easier to pull and analyze. Data prep step itself is a pain, before any analysis can happen.
 
+Physics engine for skateboarding. Or any sort of movement. Maybe AI to learn physics-based tasks.
 
