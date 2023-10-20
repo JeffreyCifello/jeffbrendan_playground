@@ -27,3 +27,8 @@ Navigate to the [creation](https://docs.github.com/en/authentication/keeping-you
 I followed the instructions and created a fine-grained key for 6 months use. I checked the top 4 or so Repository Permission because a lot of them seemed like features I wouldn't use. I gave myself the ability to block other accounts. 
 I copied and saved the key **OUTSIDE** of the repository. 
 
+
+Additionally, before doing the commit and push, I explicitly set my username with:
+```
+git config --global user.name "JeffreyCifello"
+```
