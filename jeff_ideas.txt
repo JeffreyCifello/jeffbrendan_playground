@@ -1,0 +1,19 @@
+Video game that's stardew-valley like, but modern city setting. 
+	-> tasks include problem resolution, small scale city issues (litter, potholes...). Progression could be securing grant money. Specifically game is trying to make boring stuff more interesting/make people want to get more involved in local politics. Could start as text based and once structure is figured out deal with art etc.. 
+
+Video game that combines city simulator with complex policy functions. Could get very deep and complicated.
+	This, but focused on telling player to write speeches/policies. Unique thing about game is complex text analysis. Would likely need to leverage 3rd party AI or LLMs.
+
+Economy simulator just for fun. Could turn into game. Focus on housing. Look at available socio-economic data and attempt to simulate/replicate. 
+	-> this is a bit of fool's errand/classic case of programmer thinking he can simulate something incredibly complex. Could be fun but hubristic.
+
+Novel AI/representation project. There's a paper out there about IITs and using networks for simulated agents to solve problems/follow a path. Symbolic AI stuff.
+
+Good old fashioned text-adventure game. Maybe something in solar punk genre or wholesome. Mostly to practice writing and world building.
+
+Any web app at all. I don't know web development and it seems fun.
+
+Baseball game prediction model.
+	-> I've looked into this a bit. Wrangling previous years data is non-trivial and the way it was saved was surprising. Stats are summarized by specified time windows. I'm not sure what existing models look like despite looking into it a tiny bit. People seem to charge for data that's easier to pull and analyze. Data prep step itself is a pain, before any analysis can happen.
+
+
