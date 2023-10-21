@@ -14,7 +14,10 @@ import time
 from colorama import Fore, Back, Style
 width = 30
 height = 20
-
+"""
+makes a matrix full of whatever symbol is placed in 'content'
+since matrices are collections of rows its [y coord][x coord]
+"""
 def make_enviro(width, height, content):
     enviro = []
     for i in range(height):
@@ -35,6 +38,9 @@ class Agent():
         self._y = y
         self._surroundings = []
         self._room_knowledge = make_enviro(width, height, ".")
+        """
+        toggles what kind of vision we want to have - gave up on doing a cone
+        """
         self._line_of_sight = line_of_sight
     def set_xy(self, new_x, new_y):
         self._x = new_x
@@ -114,7 +120,7 @@ class Agent():
             self.set_xy(self._x+distance, self._y)
     """Brendan's possible knowledge search options """               
     def possible_moves(self, distance=1):
-        """is a direction and distance ok """
+        """is a direction and distance ok (replaced the random move function) """
         possible_moves = []
         y=self._y
         x=self._x
@@ -181,15 +187,13 @@ class Agent():
                 return
         print("Father help I have fallen in an epistemic hole.")
         quit()
-agent_max = Agent("line", 1,2)
+agent_max = Agent(False, 1,2)
 
 
 my_environ_but_better = make_enviro(width,height, 0)
-p = min(width, height)
 
-
-for i in range(p):
-    my_environ_but_better[i][i]=1
+for i in range(width //2):
+    my_environ_but_better[height//2][i*2] = 1
     
 
 print_enviro(my_environ_but_better)
