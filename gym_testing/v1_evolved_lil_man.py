@@ -60,13 +60,14 @@ class GoLeftEnv(gym.Env):
         #percent_wall = rng.integers(1, (size //2))
         percent_wall = size //3
         self.rand_wall_cells=[]
+        """
         for i in range(percent_wall):
             j=rng.integers(0,(self.width*self.height))
             while j in self.rand_wall_cells:
                 j=rng.integers(0,(self.width*self.height))
             self.rand_wall_cells.append(j)
         self.rand_wall_cells = np.array(self.rand_wall_cells)
-        
+        """
         total =0
         for i in range(self.height):
             for j in range(self.width):
@@ -74,12 +75,12 @@ class GoLeftEnv(gym.Env):
                     
                     self.wall=np.append(self.wall, [i,j])
                     total+=1
-                
+                """
                 elif  self.width*i+j in self.rand_wall_cells:
                     
                     self.wall=np.append(self.wall, [i,j])
                     total+=1
-                 
+                 """
         self.wall=self.wall.reshape(total, 2)
         
         self.visited = []
@@ -126,24 +127,25 @@ class GoLeftEnv(gym.Env):
         direction = self._action_to_direction[action]  
         truncated = False
         agent_new_pos = self.agent_pos + direction
+        
+        # want to encourage the agent to move to new tiles over visiting old ones 
+        
+        current_cell = tuple(agent_new_pos)
+        self.visited.append(current_cell)
+        #but really don't want the agent running into walls over and over again
+        if self.visited.count(current_cell) <= 1:
+            reward+=5
         if (self.wall==agent_new_pos).all(1).any():
-            pass
+            reward-=1
         else:
             self.agent_pos = agent_new_pos
-        # want to encourage the agent to move to new tiles over visiting old ones 
-        """
-        current_cell = tuple(self.agent_pos)
-        self.visited.append(current_cell)
-        if self.visited.count(current_cell) <= 2:
-            reward+=5
-        else:
-            reward -= self.visited.count(current_cell)
-        """
+        
+        
         
         
         terminated = np.array_equal(self.agent_pos, self._target_location)
         if terminated == True:
-            reward +=500# Binary sparse rewards
+            reward +=500
         if self.time_total >= 500:
             truncated = True
         
@@ -182,7 +184,7 @@ class GoLeftEnv(gym.Env):
 
 
 
-vec_env = make_vec_env(GoLeftEnv, n_envs=1, env_kwargs=dict(width=15, height =15))
+vec_env = make_vec_env(GoLeftEnv, n_envs=1, env_kwargs=dict(width=20, height =20))
 model = A2C("MultiInputPolicy", vec_env, verbose=1)
 obs=vec_env.reset()
 vec_env.render()
@@ -191,9 +193,9 @@ eval_callback = EvalCallback(eval_env, best_model_save_path="./logs/",
                              log_path="./logs/", eval_freq=500,
                              deterministic=True, render=False)
 
-model.learn(50000)
+model.learn(500000)
 
-
+total_reward=np.array([])
 obs = vec_env.reset()
 n_steps = 500
 for step in range(n_steps):
@@ -201,10 +203,11 @@ for step in range(n_steps):
     print(f"Step {step + 1}")
     print("Action: ", action)
     obs, reward, done, info = vec_env.step(action)
+    total_reward = np.append(total_reward, reward)
     print("obs=", obs, "reward=", reward, "done=", done)
     vec_env.render()
     if done:
         # Note that the VecEnv resets automatically
         # when a done signal is encountered
-        print("Goal reached!", "reward=", reward)
+        print("Goal reached!", "reward=", np.sum(total_reward))
         break
