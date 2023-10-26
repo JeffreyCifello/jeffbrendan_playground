@@ -11,16 +11,37 @@ our agent obect should:
 """
 import random
 import time
+from colorama import Fore, Back, Style
+width = 30
+height = 20
+"""
+makes a matrix full of whatever symbol is placed in 'content'
+since matrices are collections of rows its [y coord][x coord]
+"""
+def make_enviro(width, height, content):
+    enviro = []
+    for i in range(height):
+        height = []
+        for j in range(width):
+            height.append(content)
+        enviro.append(height)
+    return enviro
+def print_enviro(environ):
+    for i in environ:
+        for j in i:
+            print(j, end=" ")
+        print("")
 
 class Agent():
-    def __init__(self, x=0, y=0):
+    def __init__(self, line_of_sight, x=0, y=0):
         self._x = x
         self._y = y
         self._surroundings = []
-        self._room_knowledge = []
-   
-        for i in range(100):
-            self._room_knowledge.append(".")
+        self._room_knowledge = make_enviro(width, height, ".")
+        """
+        toggles what kind of vision we want to have - gave up on doing a cone
+        """
+        self._line_of_sight = line_of_sight
     def set_xy(self, new_x, new_y):
         self._x = new_x
         self._y = new_y
@@ -28,41 +49,53 @@ class Agent():
         self._surroundings = new_environ
         
     def update_step(self, true_knowledge):
+        self.look_around_weak(true_knowledge)
         
-        new_surr = self.look_around_weak(true_knowledge)
-        self.update_knowledge(new_surr)
-        for j in range(10):
-            for i in range(10):
-                if self._x+10*self._y ==j*10+i:
-                    print("X", end=" ")
+        for idy, value1 in enumerate(self._room_knowledge):
+            for idx, value in enumerate(value1):
+                if self._x == idx and self._y == idy:
+                    print(Fore.MAGENTA + "X", Style.RESET_ALL, end="")
                 else:
-                    print(self._room_knowledge[j*10+i], end=" ")
+                    print(value, end=" ")
             print("")
     def look_around_weak(self, new_environ):
         """Look at the four surrouning cells"""
-        new_surr=[]
-        for idx, val in enumerate(new_environ):
-            y_coord =  (idx-(idx%10)) / 10
-            x_coord = idx%10
-            
-            if (((x_coord - self._x)**2) + ((y_coord - self._y)**2)) == 1:
-                if val == 1:
-                    new_surr.append(1)
-                else:
-                    new_surr.append(0)
-            else:
-                new_surr.append(".")
-        print(len(new_surr))
-        return new_surr
-
-        
+        x= self._x
+        y=self._y
+        if self._line_of_sight == False:
+            if y != height-1:
+                self._room_knowledge[y+1][x]=new_environ[y+1][x]
+            if y !=0:
+                self._room_knowledge[y-1][x]=new_environ[y-1][x]
+            if x!= width-1:
+                self._room_knowledge[y][x+1]=new_environ[y][x+1]
+            if x!= 0:
+                self._room_knowledge[y][x-1]=new_environ[y][x-1]
+        if self._line_of_sight == "line":
+            for i in range(y):
+                self._room_knowledge[y-i][x]=new_environ[y-i][x]
+                if new_environ[y-i][x] == 1:
+                    break
+            for i in range(height-y):
+                self._room_knowledge[y+i][x]=new_environ[y+i][x]
+                if new_environ[y+i][x] == 1:
+                    break    
+            for i in range(x):
+                self._room_knowledge[y][x-i]=new_environ[y][x-i]
+                if new_environ[y][x-i] == 1:
+                    break
+            for i in range(width-x):
+                self._room_knowledge[y][x+i]=new_environ[y][x+i]
+                if new_environ[y][x+i] == 1:
+                    break 
+                
     def is_proximal(self):
         """Look at surroundings. Return boolean about whether one is next to it. Assume 10x10 grid."""
         
         for idx, val in enumerate(self._surroundings):
             if val != 0:
-                x_coord =  (idx-(idx%10)) / 10
-                y_coord = idx%10
+                y_coord =  (idx-(idx%10)) / 10
+                x_coord = idx%10
                 
                 if x_coord == self._x:
                     return True
@@ -85,40 +118,89 @@ class Agent():
             self.set_xy(self._x-distance, self._y)
         if direction == 4:
             self.set_xy(self._x+distance, self._y)
-    def decide_move(self, distance=1):
-        """check surroundings - build a list of possible actions - act """
-        distance = 1
-        position = self._x+10*self._y
+    """Brendan's possible knowledge search options """               
+    def possible_moves(self, distance=1):
+        """is a direction and distance ok (replaced the random move function) """
         possible_moves = []
-        if self._y >= distance and self._room_knowledge[position-10*distance] != 1:
+        y=self._y
+        x=self._x
+        if self._y >= distance and self._room_knowledge[y-distance][x] != 1:
             possible_moves.append(1)
-        if self._y+distance < 10 and self._room_knowledge[position+10*distance] != 1:
+        if self._y+distance < height and self._room_knowledge[y+distance][x] != 1:
             possible_moves.append(2)
-        if self._x -distance >= 0 and self._room_knowledge[position-distance] != 1:
+        if self._x -distance >= 0 and self._room_knowledge[y][x-distance] != 1:
             possible_moves.append(3)    
-        if self._x +distance <10 and self._room_knowledge[position+distance] != 1:
+        if self._x +distance <width and self._room_knowledge[y][x+distance] != 1:
             possible_moves.append(4)
         if len(possible_moves)>0:
-            return random.choice(possible_moves)
+            return possible_moves
         else:
             print("Father help I have fallen in an epistemic hole.")
             quit()
-                    
-               
-                    
+    def least_knowledge(self):
+        """ Finds the direction we know the least about"""
+        up_total = 0
+        down_total = 0
+        left_total = 0
+        right_total = 0
+        knowledge_ranking = []
+        for idy, content in enumerate(self._room_knowledge):
+            for idx, value in enumerate(content):
+                if value == ".":
+                    if idy <= self._y:
+                        up_total += 1
+                    if idy >= self._y:
+                        down_total+=1
+                    if idx <= self._x:
+                        left_total += 1
+                    if idx >= self._x:
+                        right_total+=1
+        l = [up_total, down_total, left_total, right_total]
+        print(l)
+        for i in range(4):
+            m= max(l)
+            if up_total == m:
+                knowledge_ranking.append(1)
+                l.remove(up_total)
+          
+            if down_total == m:
+                knowledge_ranking.append(2)
+                l.remove(down_total)
                 
-              
+            if left_total == m:
+                knowledge_ranking.append(3)
+                l.remove(left_total)
+                
+            if right_total == m:
+                knowledge_ranking.append(4)
+                l.remove(right_total)
+            if len(l)==0:
+                break
+        return knowledge_ranking
+    def least_knowledge_move(self):
+        knowledge_ranking = self.least_knowledge()
+        possible = self.possible_moves()
+        for i in knowledge_ranking:
+            if i in possible:
+                self.move(i)
+                print("I am moving in direction", i) 
+                return
+        print("Father help I have fallen in an epistemic hole.")
+        quit()
+agent_max = Agent(False, 1,2)
 
-agent_max = Agent(4,4)
 
+my_environ_but_better = make_enviro(width,height, 0)
 
-my_environ = [1 if ((i > 30) & (i < 40)) else 0 for i in range(100) ]
+for i in range(width //2):
+    my_environ_but_better[height//2][i*2] = 1
+    
 
-agent_max.update_step(my_environ)
+print_enviro(my_environ_but_better)
+agent_max.update_step(my_environ_but_better)
 
-for i in range(50):
-    move_choice = agent_max.decide_move()
-    print(move_choice)
-    agent_max.move(move_choice)
-    agent_max.update_step(my_environ)
+for i in range(500):
+    agent_max.least_knowledge_move()
+    agent_max.update_step(my_environ_but_better)
     time.sleep(.5)
+
