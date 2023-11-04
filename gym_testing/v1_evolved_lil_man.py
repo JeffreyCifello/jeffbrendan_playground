@@ -9,6 +9,14 @@ from stable_baselines3.common.env_util import make_vec_env
 from stable_baselines3.common.callbacks import EvalCallback
 from stable_baselines3.common.env_checker import check_env
 
+class Ghost():
+    def __init__(self, x, y)
+        self.x = x
+        self.y =y
+    
+    
+
+
 class GoLeftEnv(gym.Env):
     """
     Custom Environment that follows gym interface.
@@ -89,6 +97,10 @@ class GoLeftEnv(gym.Env):
         
         self.visited = []
         self.seen=[]
+        
+        self.enemies =[]
+        
+        
     def _get_obs(self):
         return  np.array([self.agent_pos[0], self.agent_pos[1], self._target_location[0], self._target_location[1]])
     def _get_info(self):
@@ -233,8 +245,9 @@ class GoLeftEnv(gym.Env):
                 print("")
     def close(self):
         pass
- 
-     
+    
+    # make an enemy tag player
+    def 
 
 env=GoLeftEnv(width=20, height=20)
 check_env(env, warn=True)
